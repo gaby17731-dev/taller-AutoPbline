@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller AutoPlime - Gestión</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100">
+<div class="bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0">
+<div class="flex items-center gap-2"><div class="bg-red-600 w-10 h-10 rounded flex items-center justify-center font-bold">AP</div><div><h1 class="font-bold">AutoPlime</h1><p class="text-xs text-slate-400">Taller Mecánico</p></div></div>
+<button onclick="abrir()" class="bg-red-600 px-4 py-2 rounded-full font-bold text-sm">+ Nuevo Ingreso</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 max-w-7xl mx-auto">
+<div class="bg-white p-4 rounded-xl shadow border-l-4 border-red-600"><p class="text-[11px] opacity-60 font-bold">AUTOS EN TALLER</p><p id="s-total" class="text-2xl font-extrabold">0</p></div>
+<div class="bg-white p-4 rounded-xl shadow border-l-4 border-yellow-400"><p class="text-[11px] opacity-60 font-bold">EN REPARACION</p><p id="s-rep" class="text-2xl font-extrabold">0</p></div>
+<div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-600"><p class="text-[11px] opacity-60 font-bold">LISTOS</p><p id="s-listos" class="text-2xl font-extrabold">0</p></div>
+<div class="bg-white p-4 rounded-xl shadow"><p class="text-[11px] opacity-60">FACTURACION HOY</p><p class="text-2xl font-extrabold">Gs. 2.5M</p></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-5 gap-3 p-4 max-w-7xl mx-auto items-start">
+<div class="bg-white rounded-xl p-2 shadow"><h2 class="font-bold text-center py-2 text-sm">Ingreso <span id="c1" class="bg-slate-900 text-white rounded-full px-2 text-xs">0</span></h2><div id="col1" class="space-y-2 min-h-[200px]"></div></div>
+<div class="bg-yellow-50 rounded-xl p-2 shadow border border-yellow-200"><h2 class="font-bold text-center py-2 text-sm">Diagnóstico <span id="c2" class="bg-yellow-500 text-white rounded-full px-2 text-xs">0</span></h2><div id="col2" class="space-y-2"></div></div>
+<div class="bg-white rounded-xl p-2 shadow"><h2 class="font-bold text-center py-2 text-sm">En Reparación <span id="c3" class="bg-red-600 text-white rounded-full px-2 text-xs">0</span></h2><div id="col3" class="space-y-2"></div></div>
+<div class="bg-green-50 rounded-xl p-2 shadow border border-green-200"><h2 class="font-bold text-center py-2 text-sm">Listo <span id="c4" class="bg-green-600 text-white rounded-full px-2 text-xs">0</span></h2><div id="col4" class="space-y-2"></div></div>
+<div class="bg-slate-900 rounded-xl p-2 shadow"><h2 class="text-white font-bold text-center py-2 text-sm">Entregado <span id="c5" class="bg-white text-black rounded-full px-2 text-xs">0</span></h2><div id="col5" class="space-y-2"></div></div>
+</div>
+<div id="modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-3"><h3 class="font-bold">Nuevo Ingreso Taller</h3><input id="f_cliente" placeholder="Cliente: Ej. Juan - 0981..." class="w-full border p-3 rounded-xl text-sm"><input id="f_auto" placeholder="Vehículo: Ej. Toyota Hilux 2020 - ABC123" class="w-full border p-3 rounded-xl text-sm"><input id="f_falla" placeholder="Falla: Ej. Ruido en motor, no arranca" class="w-full border p-3 rounded-xl text-sm"><input id="f_precio" type="number" placeholder="Presupuesto Gs." class="w-full border p-3 rounded-xl text-sm"><select id="f_estado" class="w-full border p-3 rounded-xl text-sm"><option>Ingreso</option><option>Diagnóstico</option><option>En Reparación</option><option>Listo</option><option>Entregado</option></select><div class="flex gap-2"><button onclick="cerrar()" class="flex-1 border py-3 rounded-xl">Cancelar</button><button onclick="guardar()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold">Guardar</button></div></div></div>
+<script>
+let autos=JSON.parse(localStorage.getItem('autoplime'))||[
+{cliente:"Carlos Benitez - 0981 456 789",auto:"Toyota Hilux 2020 - B123 ABC",falla:"Cambio de aceite y filtro",precio:350000,estado:"Ingreso"},
+{cliente:"María Lopez",auto:"Kia Picanto 2019 - C456",falla:"Freno hace ruido",precio:500000,estado:"Diagnóstico"},
+{cliente:"Jorge Ferreira",auto:"Hyundai Tucson 2022",falla:"Motor recalienta",precio:1200000,estado:"En Reparación"},
+{cliente:"Ana Gomez",auto:"Toyota Vitz 2015",falla:"Cambio embrague",precio:850000,estado:"Listo"}
+];
+function fmt(n){return'Gs. '+Number(n).toLocaleString('es-PY');}
+function render(){const map={'Ingreso':'col1','Diagnóstico':'col2','En Reparación':'col3','Listo':'col4','Entregado':'col5'};Object.values(map).forEach(id=>document.getElementById(id).innerHTML='');autos.forEach((a,i)=>{let card=`<div class="bg-white border rounded-xl p-3 shadow-sm text-[13px]"><p class="font-bold">🚗 ${a.auto}</p><p class="text-[11px] opacity-70">${a.cliente}</p><p class="text-[11px] mt-1 bg-slate-100 p-1 rounded">${a.falla}</p><p class="font-bold mt-1">${fmt(a.precio)}</p><div class="flex gap-1 mt-2"><button onclick="mover(${i})" class="text-[10px] bg-slate-900 text-white px-3 py-1 rounded-full">Mover →</button><button onclick="borrar(${i})" class="text-[10px] ml-auto text-red-400">X</button></div></div>`;document.getElementById(map[a.estado]).innerHTML+=card;});document.getElementById('c1').innerText=autos.filter(a=>a.estado=='Ingreso').length;document.getElementById('c2').innerText=autos.filter(a=>a.estado=='Diagnóstico').length;document.getElementById('c3').innerText=autos.filter(a=>a.estado=='En Reparación').length;document.getElementById('c4').innerText=autos.filter(a=>a.estado=='Listo').length;document.getElementById('c5').innerText=autos.filter(a=>a.estado=='Entregado').length;document.getElementById('s-total').innerText=autos.filter(a=>a.estado!='Entregado').length;document.getElementById('s-rep').innerText=autos.filter(a=>a.estado=='En Reparación').length;document.getElementById('s-listos').innerText=autos.filter(a=>a.estado=='Listo').length;localStorage.setItem('autoplime',JSON.stringify(autos));}
+function mover(i){const o=["Ingreso","Diagnóstico","En Reparación","Listo","Entregado"];let idx=o.indexOf(autos[i].estado);autos[i].estado=o[(idx+1)%o.length];render();}
+function borrar(i){if(confirm('Borrar?')){autos.splice(i,1);render();}}
+function abrir(){modal.classList.remove('hidden');}function cerrar(){modal.classList.add('hidden');}
+function guardar(){autos.push({cliente:f_cliente.value||"Cliente",auto:f_auto.value||"Vehículo",falla:f_falla.value||"Sin falla",precio:f_precio.value||0,estado:f_estado.value});cerrar();render();f_cliente.value='';f_auto.value='';f_falla.value='';f_precio.value='';}
+render();
+</script>
+</body>
+</html>
